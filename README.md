@@ -1,2 +1,3 @@
-# go-job-search
-for job-seeking
+# go-job-search [WIP]
+Scraping worker program to store data for job-seeking.
+

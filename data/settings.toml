@@ -1,0 +1,48 @@
+[matching]
+level=1
+
+[[keyword]]
+search="golang"
+
+[page]
+
+[[page.indeed]]
+url = "https://www.indeed.nl/"
+parameter="vacatures?q=%s&l"
+country = "nl"
+
+[[page.indeed]]
+url = "https://de.indeed.com/"
+parameter="Jobs?q=%s&l"
+country = "de"
+
+[[page.indeed]]
+url = "https://www.indeed.fr/"
+parameter="emplois?q=%s&l"
+country = "fr"
+
+[[page.indeed]]
+url = "https://www.indeed.es/"
+parameter="Jobs?q=%s&l"
+country = "es"
+
+[[page.indeed]]
+url = "https://www.indeed.fi/"
+parameter="jobs?q=%s&l"
+country = "fi"
+
+[[page.indeed]]
+url = "https://se.indeed.com/"
+parameter="jobb?q=%s&l"
+country = "se"
+
+[[page.indeed]]
+url = "https://no.indeed.com/"
+parameter="jobs?q=%s&l"
+country = "no"
+
+[[page.indeed]]
+url = "https://dk.indeed.com/"
+parameter="jobs?q=%s&l"
+country = "dk"
+
