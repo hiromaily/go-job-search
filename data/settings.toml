@@ -7,42 +7,42 @@ search="golang"
 [page]
 
 [[page.indeed]]
-url = "https://www.indeed.nl/"
-parameter="vacatures?q=%s&l"
+url = "https://www.indeed.nl/golang-vacatures"
+parameter=""
 country = "nl"
 
 [[page.indeed]]
-url = "https://de.indeed.com/"
-parameter="Jobs?q=%s&l"
+url = "https://de.indeed.com/golang-Jobs"
+parameter=""
 country = "de"
 
 [[page.indeed]]
-url = "https://www.indeed.fr/"
-parameter="emplois?q=%s&l"
+url = "https://www.indeed.fr/Emplois-golang"
+parameter=""
 country = "fr"
 
 [[page.indeed]]
-url = "https://www.indeed.es/"
-parameter="Jobs?q=%s&l"
+url = "https://www.indeed.es/Ofertas-de-golang"
+parameter=""
 country = "es"
 
 [[page.indeed]]
-url = "https://www.indeed.fi/"
-parameter="jobs?q=%s&l"
+url = "https://www.indeed.fi/golang-jobs"
+parameter=""
 country = "fi"
 
 [[page.indeed]]
-url = "https://se.indeed.com/"
-parameter="jobb?q=%s&l"
+url = "https://se.indeed.com/golang-jobb"
+parameter=""
 country = "se"
 
 [[page.indeed]]
-url = "https://no.indeed.com/"
-parameter="jobs?q=%s&l"
+url = "https://no.indeed.com/golang-jobs"
+parameter=""
 country = "no"
 
 [[page.indeed]]
-url = "https://dk.indeed.com/"
-parameter="jobs?q=%s&l"
+url = "https://dk.indeed.com/golang-jobs"
+parameter=""
 country = "dk"
 

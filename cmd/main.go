@@ -24,7 +24,6 @@ func main() {
 	//load TOML
 	c := conf.New(*tomlPath, false)
 
-	//lg.Debugf("conf %#v\n", conf.GetConfInstance())
 	lg.Debugf("[c.Matching.Level] : %v\n", c.Matching.Level)
 	lg.Debugf("[c.Matching.Keywords] : %v\n", c.Keywords)
 	lg.Debugf("[c.Matching.Page.Indeed] : %v\n", c.Page.Indeed)

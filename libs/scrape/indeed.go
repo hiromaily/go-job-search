@@ -1,21 +1,37 @@
 package scrape
 
 import (
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	conf "github.com/hiromaily/go-job-search/libs/config"
 	lg "github.com/hiromaily/golibs/log"
 	"sync"
 )
 
-func scrapeIndeed(url string, ret chan []string) {
+func scrapeIndeed(url, country string, ret chan []string) {
+	lg.Debug("[URL]", url)
+
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		lg.Errorf("[scrapeIndeed]")
 		return
 	}
 
+	//debug
+	//if url == "https://dk.indeed.com/golang-jobs"{
+	//	res, _ := doc.Find("body").Html()
+	//	lg.Debug("[scrapeIndeed]", res)
+	//}
+
+	titles := []string{}
 	doc.Find("h2.jobtitle a").Each(func(_ int, s *goquery.Selection) {
-		//if jsonData, ok := s.Attr("id"); ok {
+		lg.Debug(s)
+
+		if title, ok := s.Attr("title"); ok {
+			lg.Debug(title)
+			titles = append(titles, title)
+		}
+		//if jsonData, ok := s.Attr("title"); ok {
 		//
 		//	//decode
 		//	htmlStringDecode(&jsonData)
@@ -35,7 +51,7 @@ func scrapeIndeed(url string, ret chan []string) {
 		//}
 	})
 
-	ret <- []string{"test1", "test2"}
+	ret <- titles
 }
 
 //func perseHTML(htmldata *goquery.Document) []string {
@@ -51,10 +67,10 @@ func ScrapeIndeed(confs []conf.PageIndeedConfig) (ret []string) {
 
 	// execute all request by goroutine
 	for _, conf := range confs {
-		go func(u string) {
-			scrapeIndeed(u, resCh)
+		go func(u, c string) {
+			scrapeIndeed(u, c, resCh)
 			waitGroup.Done()
-		}(conf.Url)
+		}(fmt.Sprintf("%s%s", conf.Url, conf.Parameter), conf.Country)
 	}
 
 	// close channel when finishing all goroutine
