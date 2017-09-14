@@ -10,4 +10,8 @@ var COUNTRY = map[string]string{
 	"se": "Sweden",
 	"no": "Norway",
 	"dk": "Denmark",
+	"uk": "United Kingdom",
+	"nz": "New Zealand",
+	"au": "Australia",
+	"ca": "Canada",
 }

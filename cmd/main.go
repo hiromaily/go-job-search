@@ -6,6 +6,8 @@ import (
 	enum "github.com/hiromaily/go-job-search/libs/enum"
 	sc "github.com/hiromaily/go-job-search/libs/scrape"
 	lg "github.com/hiromaily/golibs/log"
+	tm "github.com/hiromaily/golibs/time"
+	"time"
 )
 
 var (
@@ -34,6 +36,8 @@ func main() {
 }
 
 func callIndeed() {
+	defer tm.Track(time.Now(), "callIndeed()")
+
 	//scraping
 	results := sc.ScrapeIndeed()
 
