@@ -2,17 +2,18 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	conf "github.com/hiromaily/go-job-search/libs/config"
 	enum "github.com/hiromaily/go-job-search/libs/enum"
 	sc "github.com/hiromaily/go-job-search/libs/scrape"
 	lg "github.com/hiromaily/golibs/log"
 	tm "github.com/hiromaily/golibs/time"
 	"time"
-	"fmt"
 )
 
 var (
 	tomlPath = flag.String("f", "", "Toml file path")
+	keyword  = flag.String("key", "", "Keyword to search")
 )
 
 func init() {
@@ -40,10 +41,14 @@ func callIndeed() {
 	defer tm.Track(time.Now(), "callIndeed()")
 
 	//scraping
+	if *keyword != "" {
+		conf.GetConf().Keywords[0].Search = *keyword
+	}
 	results := sc.ScrapeIndeed()
 
 	// merge
 	jobs := make(map[string][]sc.Job)
+	// receive result channel here
 	for _, result := range results {
 		if _, ok := jobs[result.Country]; !ok {
 			jobs[result.Country] = []sc.Job{}
