@@ -8,6 +8,7 @@ import (
 	lg "github.com/hiromaily/golibs/log"
 	tm "github.com/hiromaily/golibs/time"
 	"time"
+	"fmt"
 )
 
 var (
@@ -55,11 +56,11 @@ func callIndeed() {
 
 	// display
 	for key, val := range jobs {
-		lg.Info("----------------------------------------")
-		lg.Infof("[Country] %s (%d)", enum.COUNTRY[key], len(val))
+		fmt.Println("----------------------------------------")
+		fmt.Printf("[Country] %s (%d)\n", enum.COUNTRY[key], len(val))
 		for _, v := range val {
-			lg.Infof("[Jobs] %s", v.Title)
-			lg.Infof("       %s", v.Link)
+			fmt.Printf("[Job] %s\n", v.Title)
+			fmt.Printf("       %s\n", v.Link)
 		}
 	}
 }
