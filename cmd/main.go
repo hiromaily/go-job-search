@@ -64,7 +64,7 @@ func callIndeed() {
 		fmt.Println("----------------------------------------")
 		fmt.Printf("[Country] %s (%d)\n", enum.COUNTRY[key], len(val))
 		for _, v := range val {
-			fmt.Printf("[Job] %s\n", v.Title)
+			fmt.Printf("[Job] %s (%s)\n", v.Title, v.Company)
 			fmt.Printf("       %s\n", v.Link)
 		}
 	}

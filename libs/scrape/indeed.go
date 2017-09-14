@@ -18,6 +18,8 @@ type SearchResult struct {
 
 type Job struct {
 	Title        string
+	Company      string
+	City         string
 	Link         string
 	MachingLevel uint8
 }
@@ -66,14 +68,22 @@ func scrapeIndeed(url, param, country, keyword string, start int, ret chan Searc
 
 	//analyze title
 	doc.Find("h2.jobtitle a").Each(func(_ int, s *goquery.Selection) {
-
+		//link
 		link, _ := s.Attr("href")
+
+		//company
+		var company string
+		s.Parent().Next().Find("span").Each(func(_ int, ss *goquery.Selection) {
+			if strings.Trim(ss.Text(), " ") != "" {
+				company = strings.Trim(ss.Text(), " \n")
+			}
+		})
 
 		if title, ok := s.Attr("title"); ok {
 			level := analyzeTitle(title)
 			if level != 0 {
 				//lg.Debug(title)
-				jobs = append(jobs, Job{Title: title, Link: link, MachingLevel: level})
+				jobs = append(jobs, Job{Title: title, Link: link, Company: company, MachingLevel: level})
 			}
 		}
 	})
