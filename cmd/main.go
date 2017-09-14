@@ -29,6 +29,14 @@ func main() {
 	lg.Debugf("[c.Matching.Page.Indeed] : %v\n", c.Page.Indeed)
 
 	//scraping
-	titles := sc.ScrapeIndeed(c.Page.Indeed)
-	lg.Infof("[titles] %v", titles)
+	results := sc.ScrapeIndeed(c.Page.Indeed)
+
+	//debug
+	for _, result := range results {
+		lg.Info("----------------------------------------")
+		lg.Infof("[Country] %s", result.Country)
+		for _, job := range result.Jobs {
+			lg.Infof("[Jobs] %#v", job.Title)
+		}
+	}
 }

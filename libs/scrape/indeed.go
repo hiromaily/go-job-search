@@ -5,61 +5,103 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	conf "github.com/hiromaily/go-job-search/libs/config"
 	lg "github.com/hiromaily/golibs/log"
+	"strconv"
+	"strings"
 	"sync"
 )
 
-func scrapeIndeed(url, country string, ret chan []string) {
-	lg.Debug("[URL]", url)
+type SearchResult struct {
+	Country string
+	Jobs    []Job
+}
 
-	doc, err := goquery.NewDocument(url)
+type Job struct {
+	Title        string
+	MachingLevel uint8
+}
+
+func scrapeIndeed(url, country string, start int, ret chan SearchResult, wg *sync.WaitGroup) {
+	lg.Debug("[URL]", fmt.Sprintf(url, start))
+
+	doc, err := goquery.NewDocument(fmt.Sprintf(url, start))
 	if err != nil {
 		lg.Errorf("[scrapeIndeed]")
 		return
 	}
 
-	//debug
-	//if url == "https://dk.indeed.com/golang-jobs"{
+	//debug HTML
+	//if url == "https://www.indeed.nl/vacatures?q=golang&start=0"{
 	//	res, _ := doc.Find("body").Html()
 	//	lg.Debug("[scrapeIndeed]", res)
 	//}
 
-	titles := []string{}
+	titles := SearchResult{Country: country}
+	jobs := []Job{}
+
+	var waitGroup sync.WaitGroup
+
+	if start == 0{
+		//<div class="resultsTop"><div id="searchCount">Vacatures 1 tot 10 van 48</div>
+		searchCount := []int{}
+		doc.Find("#searchCount").Each(func(_ int, s *goquery.Selection) {
+			tmp := strings.Split(s.Text(), " ")
+			for _, v := range tmp {
+				if i, ok := strconv.Atoi(v); ok == nil {
+					searchCount = append(searchCount, i)
+				}
+			}
+		})
+		lg.Debug("[searchCount]", searchCount)
+
+		// TODO:call left pages.
+		if len(searchCount) == 3{
+			for i := 10; i < searchCount[2]; i += 10 {
+				waitGroup.Add(1)
+				go scrapeIndeed(url, country, i, ret, &waitGroup)
+			}
+		}
+	}
+
 	doc.Find("h2.jobtitle a").Each(func(_ int, s *goquery.Selection) {
-		lg.Debug(s)
+		//lg.Debug(s)
 
 		if title, ok := s.Attr("title"); ok {
-			lg.Debug(title)
-			titles = append(titles, title)
+			level := analyzeTitle(title)
+			if level != 0 {
+				//lg.Debug(title)
+				jobs = append(jobs, Job{Title: title, MachingLevel: level})
+			}
 		}
-		//if jsonData, ok := s.Attr("title"); ok {
-		//
-		//	//decode
-		//	htmlStringDecode(&jsonData)
-		//
-		//	//analyze json object
-		//	var jsonObject map[string]interface{}
-		//	//json.JsonAnalyze(jsonData, &jsonObject)
-		//	json.Unmarshal([]byte(jsonData), &jsonObject)
-		//
-		//	//extract date from json object
-		//	//e.g. 2016-02-27 03:30:00
-		//
-		//	strDate := jsonObject["field19"].(string)
-		//	if isTimeApplicable(strDate) {
-		//		dates = append(dates, strDate)
-		//	}
-		//}
 	})
-
+	titles.Jobs = jobs
 	ret <- titles
+
+	//TODO: wain until all called
+	if start == 0{
+		waitGroup.Wait()
+	}else{
+		wg.Done()
+	}
+}
+
+func analyzeTitle(title string) uint8 {
+	//lg.Debug(title)
+	if strings.Index(title, "Golang") != -1 ||
+		strings.Index(title, "Go ") != -1 ||
+		strings.Index(title, "Go,") != -1 ||
+		strings.Index(title, "Go)") != -1 {
+		return 1
+	}
+
+	return 0
 }
 
 //func perseHTML(htmldata *goquery.Document) []string {
 //}
 
 //goroutine
-func ScrapeIndeed(confs []conf.PageIndeedConfig) (ret []string) {
-	resCh := make(chan []string)
+func ScrapeIndeed(confs []conf.PageIndeedConfig) (ret []SearchResult) {
+	resCh := make(chan SearchResult)
 
 	var waitGroup sync.WaitGroup
 	// set all request first
@@ -68,7 +110,7 @@ func ScrapeIndeed(confs []conf.PageIndeedConfig) (ret []string) {
 	// execute all request by goroutine
 	for _, conf := range confs {
 		go func(u, c string) {
-			scrapeIndeed(u, c, resCh)
+			scrapeIndeed(u, c, 0, resCh, nil)
 			waitGroup.Done()
 		}(fmt.Sprintf("%s%s", conf.Url, conf.Parameter), conf.Country)
 	}
@@ -81,8 +123,8 @@ func ScrapeIndeed(confs []conf.PageIndeedConfig) (ret []string) {
 
 	// wait until results channel is closed.
 	for result := range resCh {
-		lg.Infof("[ScrapeIndeed] result: %v\n", result)
-		ret = append(ret, result...)
+		//lg.Infof("[ScrapeIndeed] result: %v\n", result)
+		ret = append(ret, result)
 	}
 	return
 }
