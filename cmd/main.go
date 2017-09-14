@@ -44,7 +44,7 @@ func callIndeed() {
 	if *keyword != "" {
 		conf.GetConf().Keywords[0].Search = *keyword
 	}
-	results := sc.ScrapeIndeed()
+	results := sc.Scrape(1)
 
 	// merge
 	jobs := make(map[string][]sc.Job)
