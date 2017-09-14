@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	conf "github.com/hiromaily/go-job-search/libs/config"
+	enum "github.com/hiromaily/go-job-search/libs/enum"
 	sc "github.com/hiromaily/go-job-search/libs/scrape"
 	lg "github.com/hiromaily/golibs/log"
 )
@@ -18,25 +19,43 @@ func init() {
 	lg.InitializeLog(lg.DebugStatus, lg.LogOff, 99,
 		"[JOB]", "/var/log/go/go-job-search.log")
 
+	//load TOML
+	conf.New(*tomlPath, false)
+
+	//lg.Debugf("[c.Matching.Level] : %v\n", c.Matching.Level)
+	//lg.Debugf("[c.Matching.Keywords] : %v\n", c.Keywords)
+	//lg.Debugf("[c.Matching.Page.Indeed] : %v\n", c.Page.Indeed)
 }
 
 func main() {
-	//load TOML
-	c := conf.New(*tomlPath, false)
 
-	lg.Debugf("[c.Matching.Level] : %v\n", c.Matching.Level)
-	lg.Debugf("[c.Matching.Keywords] : %v\n", c.Keywords)
-	lg.Debugf("[c.Matching.Page.Indeed] : %v\n", c.Page.Indeed)
+	//Indeed
+	callIndeed()
+}
 
+func callIndeed() {
 	//scraping
-	results := sc.ScrapeIndeed(c.Page.Indeed)
+	results := sc.ScrapeIndeed()
 
-	//debug
+	// merge
+	jobs := make(map[string][]sc.Job)
 	for _, result := range results {
-		lg.Info("----------------------------------------")
-		lg.Infof("[Country] %s", result.Country)
+		if _, ok := jobs[result.Country]; !ok {
+			jobs[result.Country] = []sc.Job{}
+		}
 		for _, job := range result.Jobs {
-			lg.Infof("[Jobs] %#v", job.Title)
+			job.Link = result.BaseUrl + job.Link
+			jobs[result.Country] = append(jobs[result.Country], job)
+		}
+	}
+
+	// display
+	for key, val := range jobs {
+		lg.Info("----------------------------------------")
+		lg.Infof("[Country] %s (%d)", enum.COUNTRY[key], len(val))
+		for _, v := range val {
+			lg.Infof("[Jobs] %s", v.Title)
+			lg.Infof("       %s", v.Link)
 		}
 	}
 }

@@ -12,18 +12,20 @@ import (
 
 type SearchResult struct {
 	Country string
+	BaseUrl string
 	Jobs    []Job
 }
 
 type Job struct {
 	Title        string
+	Link         string
 	MachingLevel uint8
 }
 
-func scrapeIndeed(url, country string, start int, ret chan SearchResult, wg *sync.WaitGroup) {
-	lg.Debug("[URL]", fmt.Sprintf(url, start))
+func scrapeIndeed(url, param, country, keyword string, start int, ret chan SearchResult, wg *sync.WaitGroup) {
+	//lg.Debug("[URL]", fmt.Sprintf(url+"/"+param, keyword,start))
 
-	doc, err := goquery.NewDocument(fmt.Sprintf(url, start))
+	doc, err := goquery.NewDocument(fmt.Sprintf(url+"/"+param, keyword, start))
 	if err != nil {
 		lg.Errorf("[scrapeIndeed]")
 		return
@@ -35,13 +37,13 @@ func scrapeIndeed(url, country string, start int, ret chan SearchResult, wg *syn
 	//	lg.Debug("[scrapeIndeed]", res)
 	//}
 
-	titles := SearchResult{Country: country}
+	titles := SearchResult{Country: country, BaseUrl: url}
 	jobs := []Job{}
 
 	var waitGroup sync.WaitGroup
 
-	if start == 0{
-		//<div class="resultsTop"><div id="searchCount">Vacatures 1 tot 10 van 48</div>
+	//paging
+	if start == 0 {
 		searchCount := []int{}
 		doc.Find("#searchCount").Each(func(_ int, s *goquery.Selection) {
 			tmp := strings.Split(s.Text(), " ")
@@ -51,35 +53,37 @@ func scrapeIndeed(url, country string, start int, ret chan SearchResult, wg *syn
 				}
 			}
 		})
-		lg.Debug("[searchCount]", searchCount)
+		//lg.Debug("[searchCount]", searchCount)
 
-		// TODO:call left pages.
-		if len(searchCount) == 3{
+		// call left pages.
+		if len(searchCount) == 3 {
 			for i := 10; i < searchCount[2]; i += 10 {
 				waitGroup.Add(1)
-				go scrapeIndeed(url, country, i, ret, &waitGroup)
+				go scrapeIndeed(url, param, country, keyword, i, ret, &waitGroup)
 			}
 		}
 	}
 
+	//analyze title
 	doc.Find("h2.jobtitle a").Each(func(_ int, s *goquery.Selection) {
-		//lg.Debug(s)
+
+		link, _ := s.Attr("href")
 
 		if title, ok := s.Attr("title"); ok {
 			level := analyzeTitle(title)
 			if level != 0 {
 				//lg.Debug(title)
-				jobs = append(jobs, Job{Title: title, MachingLevel: level})
+				jobs = append(jobs, Job{Title: title, Link: link, MachingLevel: level})
 			}
 		}
 	})
 	titles.Jobs = jobs
 	ret <- titles
 
-	//TODO: wain until all called
-	if start == 0{
+	//wait until all called
+	if start == 0 {
 		waitGroup.Wait()
-	}else{
+	} else {
 		wg.Done()
 	}
 }
@@ -96,23 +100,23 @@ func analyzeTitle(title string) uint8 {
 	return 0
 }
 
-//func perseHTML(htmldata *goquery.Document) []string {
-//}
-
 //goroutine
-func ScrapeIndeed(confs []conf.PageIndeedConfig) (ret []SearchResult) {
+func ScrapeIndeed() (ret []SearchResult) {
+	c := conf.GetConf()
 	resCh := make(chan SearchResult)
 
 	var waitGroup sync.WaitGroup
 	// set all request first
-	waitGroup.Add(len(confs))
+	waitGroup.Add(len(c.Page.Indeed))
+
+	//TODO: to deal with multiple keyworks
 
 	// execute all request by goroutine
-	for _, conf := range confs {
-		go func(u, c string) {
-			scrapeIndeed(u, c, 0, resCh, nil)
+	for _, conf := range c.Page.Indeed {
+		go func(u, p, c, key string) {
+			scrapeIndeed(u, p, c, key, 0, resCh, nil)
 			waitGroup.Done()
-		}(fmt.Sprintf("%s%s", conf.Url, conf.Parameter), conf.Country)
+		}(conf.Url, conf.Param, conf.Country, c.Keywords[0].Search)
 	}
 
 	// close channel when finishing all goroutine

@@ -38,9 +38,9 @@ type PageConfig struct {
 
 // PageIndeedConfig is for SMTP server of mail
 type PageIndeedConfig struct {
-	Url       string `toml:"url"`
-	Parameter string `toml:"parameter"`
-	Country   string `toml:"country"`
+	Url     string `toml:"url"`
+	Param   string `toml:"param"`
+	Country string `toml:"country"`
 }
 
 var checkTomlKeys = [][]string{
