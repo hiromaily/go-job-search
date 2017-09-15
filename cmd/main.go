@@ -8,6 +8,7 @@ import (
 	sc "github.com/hiromaily/go-job-search/libs/scrape"
 	lg "github.com/hiromaily/golibs/log"
 	tm "github.com/hiromaily/golibs/time"
+	"sort"
 	"time"
 )
 
@@ -51,8 +52,6 @@ func start(pages []conf.PageConfig, mode int) {
 
 	// merge
 	jobs := make(map[string][]sc.Job)
-
-	// receive result channel here
 	for _, result := range results {
 		if _, ok := jobs[result.Country]; !ok {
 			jobs[result.Country] = []sc.Job{}
@@ -62,14 +61,31 @@ func start(pages []conf.PageConfig, mode int) {
 			jobs[result.Country] = append(jobs[result.Country], job)
 		}
 	}
+	//remove duplicated url
+	for key := range jobs {
+		sort.Slice(jobs[key], func(i, j int) bool {
+			return jobs[key][i].Link < jobs[key][j].Link
+		})
+
+		saved := ""
+		for i, v := range jobs[key] {
+			if i != 0 && saved == v.Link {
+				jobs[key][i].Link = ""
+				continue
+			}
+			saved = v.Link
+		}
+	}
 
 	// display
 	for key, val := range jobs {
 		fmt.Println("----------------------------------------")
 		fmt.Printf("[Country] %s (%d)\n", enum.COUNTRY[key], len(val))
 		for _, v := range val {
-			fmt.Printf("[Job] %s (%s)\n", v.Title, v.Company)
-			fmt.Printf("       %s\n", v.Link)
+			if v.Link != "" {
+				fmt.Printf("[Job] %s (%s)\n", v.Title, v.Company)
+				fmt.Printf("       %s\n", v.Link)
+			}
 		}
 	}
 }
