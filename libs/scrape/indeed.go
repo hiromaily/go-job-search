@@ -3,16 +3,23 @@ package scrape
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	conf "github.com/hiromaily/go-job-search/libs/config"
 	lg "github.com/hiromaily/golibs/log"
 	"strconv"
 	"strings"
 	"sync"
 )
 
-func scrapeIndeed(url, param, country, keyword string, start int, ret chan SearchResult, wg *sync.WaitGroup) {
+type indeed struct {
+	conf.PageConfig
+	keyword string
+}
+
+// notify implements a method with a pointer receiver.
+func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) {
 	//lg.Debug("[URL]", fmt.Sprintf(url+param, keyword,start))
 
-	doc, err := goquery.NewDocument(fmt.Sprintf(url+param, keyword, start))
+	doc, err := goquery.NewDocument(fmt.Sprintf(ind.Url+ind.Param, ind.keyword, start))
 	if err != nil {
 		lg.Errorf("[scrapeIndeed]")
 		return
@@ -24,7 +31,7 @@ func scrapeIndeed(url, param, country, keyword string, start int, ret chan Searc
 	//	lg.Debug("[scrapeIndeed]", res)
 	//}
 
-	titles := SearchResult{Country: country, BaseUrl: url}
+	titles := SearchResult{Country: ind.Country, BaseUrl: ind.Url}
 	jobs := []Job{}
 
 	var waitGroup sync.WaitGroup
@@ -46,7 +53,7 @@ func scrapeIndeed(url, param, country, keyword string, start int, ret chan Searc
 		if len(searchCount) == 3 {
 			for i := 10; i < searchCount[2]; i += 10 {
 				waitGroup.Add(1)
-				go scrapeIndeed(url, param, country, keyword, i, ret, &waitGroup)
+				go ind.scrape(i, ret, &waitGroup)
 			}
 		}
 	}

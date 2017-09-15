@@ -32,22 +32,26 @@ func init() {
 }
 
 func main() {
-
-	//Indeed
-	callIndeed()
-}
-
-func callIndeed() {
-	defer tm.Track(time.Now(), "callIndeed()")
-
 	//scraping
 	if *keyword != "" {
 		conf.GetConf().Keywords[0].Search = *keyword
 	}
-	results := sc.Scrape(1)
+
+	c := conf.GetConf()
+
+	//Indeed
+	start(c.Page.Indeed, 0)
+}
+
+func start(pages []conf.PageConfig, mode int) {
+	defer tm.Track(time.Now(), fmt.Sprintf("start():%s", enum.MODE[mode]))
+
+	// scrape
+	results := sc.Scrape(pages, mode)
 
 	// merge
 	jobs := make(map[string][]sc.Job)
+
 	// receive result channel here
 	for _, result := range results {
 		if _, ok := jobs[result.Country]; !ok {

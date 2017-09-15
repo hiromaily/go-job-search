@@ -15,3 +15,8 @@ var COUNTRY = map[string]string{
 	"au": "Australia",
 	"ca": "Canada",
 }
+
+var MODE = []string{
+	"indeed",
+	"stackoverflow",
+}

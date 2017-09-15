@@ -18,7 +18,7 @@ var conf *Config
 type Config struct {
 	Matching *MatchingConfig `toml:"matching"`
 	Keywords []KeywordConfig `toml:"keyword"`
-	Page     *PageConfig     `toml:"page"`
+	Page     *PagesConfig    `toml:"page"`
 }
 
 // MatchingConfig is for MySQL server
@@ -32,12 +32,13 @@ type KeywordConfig struct {
 }
 
 // PageConfig is for mail
-type PageConfig struct {
-	Indeed []PageIndeedConfig `toml:"indeed"`
+type PagesConfig struct {
+	Indeed        []PageConfig `toml:"indeed"`
+	Stackoverflow []PageConfig `toml:"stackoverflow"`
 }
 
 // PageIndeedConfig is for SMTP server of mail
-type PageIndeedConfig struct {
+type PageConfig struct {
 	Url     string `toml:"url"`
 	Param   string `toml:"param"`
 	Country string `toml:"country"`

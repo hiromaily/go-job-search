@@ -6,6 +6,10 @@ import (
 	"sync"
 )
 
+type Scraper interface {
+	scrape(int, chan SearchResult, *sync.WaitGroup)
+}
+
 type SearchResult struct {
 	Country string
 	BaseUrl string
@@ -32,28 +36,40 @@ func analyzeTitle(title string) uint8 {
 	return 0
 }
 
+func callScraper(s Scraper, resCh chan SearchResult, wg *sync.WaitGroup) {
+	s.scrape(0, resCh, nil)
+	wg.Done()
+}
+
 //goroutine
-func Scrape(mode int) (ret []SearchResult) {
+func Scrape(pages []conf.PageConfig, mode int) (ret []SearchResult) {
 	c := conf.GetConf()
 	resCh := make(chan SearchResult)
 
-	var waitGroup sync.WaitGroup
+	var wg sync.WaitGroup
 	// set all request first
-	waitGroup.Add(len(c.Page.Indeed))
+	wg.Add(len(c.Page.Indeed))
 
 	//TODO: to deal with multiple keyworks
 
 	// execute all request by goroutine
-	for _, conf := range c.Page.Indeed {
-		go func(u, p, c, key string) {
-			scrapeIndeed(u, p, c, key, 0, resCh, nil)
-			waitGroup.Done()
-		}(conf.Url, conf.Param, conf.Country, c.Keywords[0].Search)
+	for _, page := range pages {
+		//TODO:interface
+		switch mode {
+		case 0:
+			ind := indeed{page, c.Keywords[0].Search}
+			go callScraper(&ind, resCh, &wg)
+		default:
+		}
+		//go func(s Scraper, wg *sync.WaitGroup) {
+		//	s.scrape(0, resCh, nil)
+		//	wg.Done()
+		//}(&ind, &wg)
 	}
 
 	// close channel when finishing all goroutine
 	go func() {
-		waitGroup.Wait()
+		wg.Wait()
 		close(resCh)
 	}()
 

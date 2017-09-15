@@ -82,7 +82,7 @@ country = "dk"
 [[page.stackoverflow]]
 url = "https://stackoverflow.com"
 param = "/jobs/developer-jobs-using-go"
-
+country = ""
 
 [[page.linkedin]]
 url = "https://www.linkedin.com"
