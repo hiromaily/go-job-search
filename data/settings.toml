@@ -79,12 +79,63 @@ country = "dk"
 #param = "jobs?q=%s&start=%d"
 #country = "ca"
 
+
 [[page.stackoverflow]]
 url = "https://stackoverflow.com"
 param = "/jobs/developer-jobs-using-go"
 country = ""
 
+
 [[page.linkedin]]
 url = "https://www.linkedin.com"
-param = "/jobs/search/?keywords=golang&location=&locationId=nl%3A0"
+#param = "/jobs/search/?keywords=golang&location=Netherlands&locationId=nl%3A0"
+param = "/jobs/search/?keywords=%s&location=%s&locationId=%s"
 country = "nl"
+
+[[page.linkedin]]
+url = "https://www.linkedin.com"
+#param = "/jobs/search/?keywords=golang&location=Germany&locationId=de%3A0"
+param = "/jobs/search/?keywords=%s&location=%s&locationId=%s"
+country = "de"
+
+[[page.linkedin]]
+url = "https://www.linkedin.com"
+#param = "/jobs/search/?keywords=golang&location=Spain&locationId=de%3A0"
+param = "/jobs/search/?keywords=%s&location=%s&locationId=%s"
+country = "es"
+
+[[page.linkedin]]
+url = "https://www.linkedin.com"
+#param = "/jobs/search/?keywords=golang&location=France&locationId=fr%3A0"
+param = "/jobs/search/?keywords=%s&location=%s&locationId=%s"
+country = "fr"
+
+[[page.linkedin]]
+url = "https://www.linkedin.com"
+#param = "/jobs/search/?keywords=golang&location=Finland&locationId=fi%3A0"
+param = "/jobs/search/?keywords=%s&location=%s&locationId=%s"
+country = "fi"
+
+[[page.linkedin]]
+url = "https://www.linkedin.com"
+#param = "/jobs/search/?keywords=golang&location=Sweden&locationId=se%3A0"
+param = "/jobs/search/?keywords=%s&location=%s&locationId=%s"
+country = "se"
+
+[[page.linkedin]]
+url = "https://www.linkedin.com"
+#param = "/jobs/search/?keywords=golang&location=Denmark&locationId=dk%3A0"
+param = "/jobs/search/?keywords=%s&location=%s&locationId=%s"
+country = "dk"
+
+[[page.linkedin]]
+url = "https://www.linkedin.com"
+#param = "/jobs/search/?keywords=golang&location=Norway&locationId=no%3A0"
+param = "/jobs/search/?keywords=%s&location=%s&locationId=%s"
+country = "no"
+
+[[page.linkedin]]
+url = "https://www.linkedin.com"
+#param = "/jobs/search/?keywords=golang&location=United%20Kingdom&locationId=gb%3A0"
+param = "/jobs/search/?keywords=%s&location=%s&locationId=%s"
+country = "gb"

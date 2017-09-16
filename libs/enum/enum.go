@@ -11,12 +11,15 @@ var COUNTRY = map[string]string{
 	"no": "Norway",
 	"dk": "Denmark",
 	"uk": "United Kingdom",
+	"gb": "United Kingdom",
 	"nz": "New Zealand",
 	"au": "Australia",
 	"ca": "Canada",
 }
 
 var MODE = []string{
+	"",
 	"indeed",
 	"stackoverflow",
+	"linkedin",
 }

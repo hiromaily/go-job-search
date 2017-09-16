@@ -35,6 +35,7 @@ type KeywordConfig struct {
 type PagesConfig struct {
 	Indeed        []PageConfig `toml:"indeed"`
 	Stackoverflow []PageConfig `toml:"stackoverflow"`
+	Linkedin      []PageConfig `toml:"linkedin"`
 }
 
 // PageIndeedConfig is for SMTP server of mail

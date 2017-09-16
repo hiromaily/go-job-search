@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	conf "github.com/hiromaily/go-job-search/libs/config"
-	enum "github.com/hiromaily/go-job-search/libs/enum"
+	"github.com/hiromaily/go-job-search/libs/enum"
 	sc "github.com/hiromaily/go-job-search/libs/scrape"
 	lg "github.com/hiromaily/golibs/log"
 	tm "github.com/hiromaily/golibs/time"
@@ -14,6 +14,7 @@ import (
 
 var (
 	tomlPath = flag.String("f", "", "Toml file path")
+	target   = flag.Int("target", 0, "Target of search")
 	keyword  = flag.String("key", "", "Keyword to search")
 )
 
@@ -40,11 +41,26 @@ func main() {
 
 	c := conf.GetConf()
 
-	//Indeed
-	start(c.Page.Indeed, 0)
+	switch *target {
+	case 0:
+		//Indeed
+		start(c.Page.Indeed, 1)
+		//Stackoverflow
+		start(c.Page.Stackoverflow, 2)
+		//Linkedin
+		start(c.Page.Linkedin, 3)
+	case 1:
+		//Indeed
+		start(c.Page.Indeed, 1)
+	case 2:
+		//Stackoverflow
+		start(c.Page.Stackoverflow, 2)
+	case 3:
+		//Linkedin
+		start(c.Page.Linkedin, 3)
+	default:
+	}
 
-	//Stackoverflow
-	start(c.Page.Stackoverflow, 1)
 }
 
 func start(pages []conf.PageConfig, mode int) {

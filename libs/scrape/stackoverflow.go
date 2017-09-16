@@ -20,11 +20,11 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 	var waitGroup sync.WaitGroup
 
 	///jobs/developer-jobs-using-go?pg=2
-	//lg.Debug("[URL]", fmt.Sprintf("%s%s?pg=%d", sof.Url, sof.Param, start))
 	url := sof.Url + sof.Param
 	if start != 0 {
 		url = fmt.Sprintf("%s?pg=%d", url, start)
 	}
+	//lg.Debug("[URL]", url)
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		lg.Errorf("[scrape() for stackoverflow]")
@@ -120,16 +120,16 @@ func sendJobs(jobs []Job, url string, ret chan SearchResult) {
 			location[1] = strings.Trim(location[1], " ")
 
 			if len(location[1]) == 2 {
-				if location[1] == "CA"{
+				if location[1] == "CA" {
 					country = "Canada"
-				}else{
+				} else {
 					country = "USA"
 				}
 			} else {
 				country = location[1]
 			}
 			//
-			if country == "Deutschland"{
+			if country == "Deutschland" {
 				country = "Germany"
 			}
 		}

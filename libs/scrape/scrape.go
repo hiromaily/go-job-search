@@ -3,6 +3,7 @@ package scrape
 import (
 	conf "github.com/hiromaily/go-job-search/libs/config"
 	//lg "github.com/hiromaily/golibs/log"
+	ur "net/url"
 	"strings"
 	"sync"
 )
@@ -42,6 +43,11 @@ func callScraper(s Scraper, resCh chan SearchResult, wg *sync.WaitGroup) {
 	wg.Done()
 }
 
+func encode(url string) string {
+	u := &ur.URL{Path: url}
+	return u.String()
+}
+
 //goroutine
 func Scrape(pages []conf.PageConfig, mode int) (ret []SearchResult) {
 	c := conf.GetConf()
@@ -57,11 +63,14 @@ func Scrape(pages []conf.PageConfig, mode int) (ret []SearchResult) {
 	for _, page := range pages {
 		//TODO:interface
 		switch mode {
-		case 0:
+		case 1:
 			ind := indeed{page, c.Keywords[0].Search}
 			go callScraper(&ind, resCh, &wg)
-		case 1:
+		case 2:
 			stc := stackoverflow{page, c.Keywords[0].Search}
+			go callScraper(&stc, resCh, &wg)
+		case 3:
+			stc := linkedin{page, c.Keywords[0].Search}
 			go callScraper(&stc, resCh, &wg)
 		default:
 		}

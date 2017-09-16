@@ -19,8 +19,9 @@ type indeed struct {
 func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) {
 	var waitGroup sync.WaitGroup
 
-	//lg.Debug("[URL]", fmt.Sprintf(url+param, keyword,start))
-	doc, err := goquery.NewDocument(fmt.Sprintf(ind.Url+ind.Param, ind.keyword, start))
+	url := fmt.Sprintf(ind.Url+ind.Param, ind.keyword, start)
+	//lg.Debug("[URL]", url)
+	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		lg.Errorf("[scrape() for indeed]")
 		if wg != nil {
