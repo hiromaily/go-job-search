@@ -128,6 +128,10 @@ func sendJobs(jobs []Job, url string, ret chan SearchResult) {
 			} else {
 				country = location[1]
 			}
+			//
+			if country == "Deutschland"{
+				country = "Germany"
+			}
 		}
 		titles := SearchResult{Country: country, BaseUrl: url, Jobs: []Job{value}}
 		ret <- titles

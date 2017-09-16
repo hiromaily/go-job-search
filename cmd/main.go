@@ -41,7 +41,7 @@ func main() {
 	c := conf.GetConf()
 
 	//Indeed
-	//start(c.Page.Indeed, 0)
+	start(c.Page.Indeed, 0)
 
 	//Stackoverflow
 	start(c.Page.Stackoverflow, 1)
