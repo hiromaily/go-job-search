@@ -41,7 +41,10 @@ func main() {
 	c := conf.GetConf()
 
 	//Indeed
-	start(c.Page.Indeed, 0)
+	//start(c.Page.Indeed, 0)
+
+	//Stackoverflow
+	start(c.Page.Stackoverflow, 1)
 }
 
 func start(pages []conf.PageConfig, mode int) {
@@ -77,10 +80,26 @@ func start(pages []conf.PageConfig, mode int) {
 		}
 	}
 
+	//sort by company
+	for key := range jobs {
+		sort.Slice(jobs[key], func(i, j int) bool {
+			return jobs[key][i].Company < jobs[key][j].Company
+		})
+	}
+
 	// display
+	fmt.Printf("================= %s =================\n", enum.MODE[mode])
+
+	var country string
 	for key, val := range jobs {
 		fmt.Println("----------------------------------------")
-		fmt.Printf("[Country] %s (%d)\n", enum.COUNTRY[key], len(val))
+		if val, ok := enum.COUNTRY[key]; ok {
+			country = val
+		} else {
+			country = key
+		}
+
+		fmt.Printf("[Country] %s (%d)\n", country, len(val))
 		for _, v := range val {
 			if v.Link != "" {
 				fmt.Printf("[Job] %s (%s)\n", v.Title, v.Company)

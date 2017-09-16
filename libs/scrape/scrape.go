@@ -2,6 +2,7 @@ package scrape
 
 import (
 	conf "github.com/hiromaily/go-job-search/libs/config"
+	//lg "github.com/hiromaily/golibs/log"
 	"strings"
 	"sync"
 )
@@ -48,7 +49,7 @@ func Scrape(pages []conf.PageConfig, mode int) (ret []SearchResult) {
 
 	var wg sync.WaitGroup
 	// set all request first
-	wg.Add(len(c.Page.Indeed))
+	wg.Add(len(pages))
 
 	//TODO: to deal with multiple keyworks
 
@@ -59,6 +60,9 @@ func Scrape(pages []conf.PageConfig, mode int) (ret []SearchResult) {
 		case 0:
 			ind := indeed{page, c.Keywords[0].Search}
 			go callScraper(&ind, resCh, &wg)
+		case 1:
+			stc := stackoverflow{page, c.Keywords[0].Search}
+			go callScraper(&stc, resCh, &wg)
 		default:
 		}
 		//go func(s Scraper, wg *sync.WaitGroup) {

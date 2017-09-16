@@ -17,11 +17,15 @@ type indeed struct {
 
 // notify implements a method with a pointer receiver.
 func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) {
-	//lg.Debug("[URL]", fmt.Sprintf(url+param, keyword,start))
+	var waitGroup sync.WaitGroup
 
+	//lg.Debug("[URL]", fmt.Sprintf(url+param, keyword,start))
 	doc, err := goquery.NewDocument(fmt.Sprintf(ind.Url+ind.Param, ind.keyword, start))
 	if err != nil {
-		lg.Errorf("[scrapeIndeed]")
+		lg.Errorf("[scrape() for indeed]")
+		if wg != nil {
+			wg.Done()
+		}
 		return
 	}
 
@@ -31,22 +35,16 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 	//	lg.Debug("[scrapeIndeed]", res)
 	//}
 
-	titles := SearchResult{Country: ind.Country, BaseUrl: ind.Url}
-	jobs := []Job{}
-
-	var waitGroup sync.WaitGroup
-
 	//paging
 	if start == 0 {
 		searchCount := []int{}
-		doc.Find("#searchCount").Each(func(_ int, s *goquery.Selection) {
-			tmp := strings.Split(s.Text(), " ")
-			for _, v := range tmp {
-				if i, ok := strconv.Atoi(v); ok == nil {
-					searchCount = append(searchCount, i)
-				}
+		searchDoc := doc.Find("#searchCount").First()
+		tmp := strings.Split(searchDoc.Text(), " ")
+		for _, v := range tmp {
+			if i, ok := strconv.Atoi(v); ok == nil {
+				searchCount = append(searchCount, i)
 			}
-		})
+		}
 		//lg.Debug("[searchCount]", searchCount)
 
 		// call left pages.
@@ -58,6 +56,9 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 		}
 	}
 
+	titles := SearchResult{Country: ind.Country, BaseUrl: ind.Url}
+	jobs := []Job{}
+
 	//analyze title
 	doc.Find("h2.jobtitle a").Each(func(_ int, s *goquery.Selection) {
 		//link
@@ -65,11 +66,13 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 
 		//company
 		var company string
-		s.Parent().Next().Find("span").Each(func(_ int, ss *goquery.Selection) {
-			if strings.Trim(ss.Text(), " ") != "" {
-				company = strings.Trim(ss.Text(), " \n")
-			}
-		})
+
+		//s.Parent().Next().Find("span").Each(func(_ int, ss *goquery.Selection) {
+		companyDoc := s.Parent().Next().Find("span").First()
+		tmpcom := strings.Trim(companyDoc.Text(), " \n")
+		if tmpcom != "" {
+			company = tmpcom
+		}
 
 		if title, ok := s.Attr("title"); ok {
 			level := analyzeTitle(title)
