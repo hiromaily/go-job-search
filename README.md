@@ -3,6 +3,7 @@ Scraping worker program to store data for job-seeking.
 
 ```
 $ go run ./cmd/main.go
+================= indeed =================
 ----------------------------------------
 [Country] Netherlands (7)
 [Job] Senior Go Developer (Open Transport)
@@ -26,10 +27,33 @@ $ go run ./cmd/main.go
 [Job] Backend Engineer - Golang/NodeJS (CMP Group)
        https://www.indeed.es/rc/clk?jk=d4fc127f8ac9d37c&fccid=9c6cc78ac1c6f55f
 ----------------------------------------
+[Country] Denmark (1)
+[Job] Golang/Go Developer - Copenhagen (Vivino)
+       https://dk.indeed.com/rc/clk?jk=72e006aa0d0737af&fccid=7e823746b1546d7f
+----------------------------------------
 [Country] Finland (0)
 ----------------------------------------
 [Country] Sweden (0)
 ----------------------------------------
 ...
 ...
+================= stackoverflow =================
+----------------------------------------
+[Country] Finland (1)
+[Job] * Medior / Senior Backend master with Python, Node.js, Go * (Qvik)
+       https://stackoverflow.comhttps://stackoverflow.com/jobs/152648/medior-senior-backend-master-with-python-qvik
+----------------------------------------
+[Country] Czechia (1)
+[Job] Golang Developer with Russian (SEMrush)
+       https://stackoverflow.comhttps://stackoverflow.com/jobs/147749/golang-developer-with-russian-semrush
+----------------------------------------
+[Country] Netherlands (2)
+[Job] Golang Developer (KPN)
+       https://stackoverflow.comhttps://stackoverflow.com/jobs/152225/golang-developer-kpn
+[Job] Java/Golang Developer for Cacoo (Nulab, Inc)
+       https://stackoverflow.comhttps://stackoverflow.com/jobs/148682/java-golang-developer-for-cacoo-nulab-inc       
+----------------------------------------
+...
+...
+
 ```
