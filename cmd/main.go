@@ -123,4 +123,5 @@ func start(pages []conf.PageConfig, mode int) {
 			}
 		}
 	}
+	fmt.Println("----------------------------------------")
 }

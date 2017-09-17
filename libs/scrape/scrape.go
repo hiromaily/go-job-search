@@ -2,7 +2,6 @@ package scrape
 
 import (
 	conf "github.com/hiromaily/go-job-search/libs/config"
-	//lg "github.com/hiromaily/golibs/log"
 	ur "net/url"
 	"strings"
 	"sync"
@@ -24,28 +23,6 @@ type Job struct {
 	City         string
 	Link         string
 	MachingLevel uint8
-}
-
-func analyzeTitle(title string) uint8 {
-	//lg.Debug(title)
-	if strings.Index(title, "Golang") != -1 ||
-		strings.Index(title, "Go ") != -1 ||
-		strings.Index(title, "Go,") != -1 ||
-		strings.Index(title, "Go)") != -1 {
-		return 1
-	}
-
-	return 0
-}
-
-func callScraper(s Scraper, resCh chan SearchResult, wg *sync.WaitGroup) {
-	s.scrape(0, resCh, nil)
-	wg.Done()
-}
-
-func encode(url string) string {
-	u := &ur.URL{Path: url}
-	return u.String()
 }
 
 //goroutine
@@ -91,4 +68,29 @@ func Scrape(pages []conf.PageConfig, mode int) (ret []SearchResult) {
 		ret = append(ret, result)
 	}
 	return
+}
+
+func callScraper(s Scraper, resCh chan SearchResult, wg *sync.WaitGroup) {
+	s.scrape(0, resCh, nil)
+	wg.Done()
+}
+
+func analyzeTitle(title string) uint8 {
+	//lg.Debug(title)
+	if strings.Index(title, "Golang") != -1 ||
+		strings.Index(title, "Go ") != -1 ||
+		strings.Index(title, "Go,") != -1 ||
+		strings.Index(title, "Go)") != -1 {
+		return 1
+	}
+
+	return 0
+}
+
+//-----------------------------------------------------------------------------
+// Utility function
+//-----------------------------------------------------------------------------
+func encode(url string) string {
+	u := &ur.URL{Path: url}
+	return u.String()
 }
