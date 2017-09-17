@@ -55,5 +55,33 @@ $ go run ./cmd/main.go
 ----------------------------------------
 ...
 ...
+================= linkedin =================
+----------------------------------------
+[Country] Spain (3)
+[Job] Backend engineer - Golang (AdSecure)
+       https://www.linkedin.com/jobs/view/403036055/
+[Job] Backend Engineer - Golang/NodeJS (CMP Group)
+       https://www.linkedin.com/jobs/view/435882806/
+[Job] Backend engineer - Golang (ExoClick)
+       https://www.linkedin.com/jobs/view/441327875/
+----------------------------------------
+[Country] France (0)
+----------------------------------------
+[Country] German (5)
+[Job] Senior Python Engineer - Python, Golang, Docker - Interested in an emission-free future? ()
+       https://www.linkedin.com/jobs/view/351680288/
+[Job] Golang Developer (Fit Analytics)
+       https://www.linkedin.com/jobs/view/400743372/
+[Job] Go / Golang Developer (Landing.jobs)
+       https://www.linkedin.com/jobs/view/452104245/
+[Job] Golang / Java Software Developer (m/f) (Sixt rent a car)
+       https://www.linkedin.com/jobs/view/403442175/
+[Job] Brand New Exciting Senior Ruby on Rails with Elixir or Golang developer - REMOTE ROLE (Talent)
+       https://www.linkedin.com/jobs/view/406144294/
+----------------------------------------
+[Country] Norway (0)
+----------------------------------------
+...
+...
 
 ```
