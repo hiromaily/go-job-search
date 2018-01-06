@@ -1,5 +1,5 @@
 build:
-	go build -i -v -o ${GOPATH}/bin/gojob ./cmd/
+	go build -i -race -v -o ${GOPATH}/bin/gojob ./cmd/
 
 exec:
 	gojob
@@ -14,13 +14,13 @@ exec3:
 	gojob -target 3
 
 run: build exec
-	#go run ./cmd/main.go
+	#go run -race ./cmd/main.go
 
 run1: build exec1
-	#go run ./cmd/main.go -target 1
+	#go run -race ./cmd/main.go -target 1
 
 run2: build exec2
-	#go run ./cmd/main.go -target 2
+	#go run -race ./cmd/main.go -target 2
 
 run3: build exec3
-	#go run ./cmd/main.go -target 3
+	#go run -race ./cmd/main.go -target 3
