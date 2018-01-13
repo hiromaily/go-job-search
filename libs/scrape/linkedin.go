@@ -63,7 +63,7 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 	}
 	//https://www.linkedin.com/jobs/search/?keywords=golang&location=Netherlands&locationId=nl%3A0
 	//https://www.linkedin.com/jobs/search/?keywords=golang&location=Netherlands&locationId=nl%3A0&start=25
-	lg.Debug("[URL]", url)
+	//lg.Debug("[URL]", url)
 
 	// http request
 	resp, err := sendRequest(url)
