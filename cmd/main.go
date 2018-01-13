@@ -6,6 +6,7 @@ import (
 	conf "github.com/hiromaily/go-job-search/libs/config"
 	"github.com/hiromaily/go-job-search/libs/enum"
 	sc "github.com/hiromaily/go-job-search/libs/scrape"
+	"github.com/hiromaily/golibs/color"
 	lg "github.com/hiromaily/golibs/log"
 	tm "github.com/hiromaily/golibs/time"
 	"sort"
@@ -104,7 +105,8 @@ func start(pages []conf.PageConfig, mode int) {
 	}
 
 	// display
-	fmt.Printf("================= %s =================\n", enum.MODE[mode])
+	fmt.Println(color.Addf(color.Green, "======================= %s =======================\n", enum.MODE[mode]))
+	//fmt.Printf("================= %s =================\n", enum.MODE[mode])
 
 	var country string
 	for key, val := range jobs {

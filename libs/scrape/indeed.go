@@ -24,7 +24,7 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 	//lg.Debug("[URL]", url)
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
-		lg.Errorf("[scrape() for indeed]")
+		lg.Errorf("[scrape() for indeed] %s", url)
 		if wg != nil {
 			wg.Done()
 		}
