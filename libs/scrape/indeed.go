@@ -19,6 +19,7 @@ type indeed struct {
 func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) {
 	var waitGroup sync.WaitGroup
 
+	// http request
 	url := fmt.Sprintf(ind.Url+ind.Param, ind.keyword, start)
 	//lg.Debug("[URL]", url)
 	doc, err := goquery.NewDocument(url)
@@ -36,7 +37,7 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 	//	lg.Debug("[scrapeIndeed]", res)
 	//}
 
-	//paging
+	// paging, call all existing pages by paging information
 	if start == 0 {
 		searchCount := []int{}
 		searchDoc := doc.Find("#searchCount").First()
@@ -57,6 +58,7 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 		}
 	}
 
+	// parse html
 	titles := SearchResult{Country: ind.Country, BaseUrl: ind.Url}
 	jobs := []Job{}
 
@@ -68,8 +70,11 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 		//company
 		var company string
 
-		//s.Parent().Next().Find("span").Each(func(_ int, ss *goquery.Selection) {
-		companyDoc := s.Parent().Next().Find("span").First()
+		//this emement may be changeble
+		companyDoc := s.Parent().Next()
+		//companyDoc := s.Parent().Next().Find("span")
+		//companyDoc := s.Parent().Next().Find("span").First()
+
 		tmpcom := strings.Trim(companyDoc.Text(), " \n")
 		if tmpcom != "" {
 			company = tmpcom
