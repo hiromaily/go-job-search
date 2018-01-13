@@ -33,17 +33,39 @@ var (
 	cookieVal string = ""
 )
 
+func init(){
+	//get cookie from chrome
+	getLinkedinCookie()
+}
+
+func getLinkedinCookie() {
+	var (
+		//url = "www.linkedin.com"
+		url = "linkedin.com"
+	)
+
+	if cookieVal == "" {
+		cookies := ck.GetAllValue(url)
+		for key, value := range cookies {
+			cookieVal = cookieVal + fmt.Sprintf("%s=\"%s\"; ", key, value)
+		}
+	}
+}
+
 // notify implements a method with a pointer receiver.
 func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) {
 	var waitGroup sync.WaitGroup
 
+	// create URL
 	url := fmt.Sprintf(lkd.Url+lkd.Param, lkd.keyword, encode(enum.COUNTRY[lkd.Country]), lkd.Country) + urlSuffix
 	if start != 0 {
 		url = fmt.Sprintf("%s&start=%d", url, start)
 	}
-	//https://www.linkedin.com/jobs/search/?keywords=golang&location=United%20Kingdom&locationId=gb%3A0&start=25
-	//lg.Debug("[URL]", url)
+	//https://www.linkedin.com/jobs/search/?keywords=golang&location=Netherlands&locationId=nl%3A0
+	//https://www.linkedin.com/jobs/search/?keywords=golang&location=Netherlands&locationId=nl%3A0&start=25
+	lg.Debug("[URL]", url)
 
+	// http request
 	resp, err := sendRequest(url)
 	var doc *goquery.Document
 	if err == nil {
@@ -58,7 +80,7 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 		return
 	}
 
-	//check body
+	// check body
 	body := doc.Find("body")
 	if len(body.Nodes) == 0 {
 		lg.Errorf("[scrape() for linkedin] no body: url:%s", url)
@@ -68,7 +90,7 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 		return
 	}
 
-	//get code
+	// get <code> elements that includes any information
 	var result linkedinResult
 	var ok bool
 	doc.Find("code").Each(func(_ int, s *goquery.Selection) {
@@ -95,10 +117,11 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 	//	return
 	//}
 
-	//paging
-	//{"total":71,"count":25,"start":0,"links":[]}}
-	//{"total":71,"count":25,"start":25,"links":[]}}
+	// paging, call all existing pages by paging information
 	if start == 0 {
+		//paging
+		//{"total":71,"count":25,"start":0,"links":[]}}
+		//{"total":71,"count":25,"start":25,"links":[]}}
 
 		// call left pages.
 		if result.total > result.count {
@@ -164,22 +187,9 @@ func setHeader(req *http.Request) {
 	req.Header.Set("Cache-Control", "max-age=0")
 	req.Header.Set("Connection", "keep-alive")
 
-	getLinkedinCookie(req)
-}
-
-func getLinkedinCookie(req *http.Request) {
-	var (
-		//url = "www.linkedin.com"
-		url = "linkedin.com"
-	)
-
-	if cookieVal == "" {
-		cookies := ck.GetAllValue(url)
-		for key, value := range cookies {
-			cookieVal = cookieVal + fmt.Sprintf("%s=\"%s\"; ", key, value)
-		}
-	}
+	//setLinkedinCookie(req)
 	req.Header.Set("Cookie", cookieVal)
+
 }
 
 func analyzeJson(data []byte) interface{} {
