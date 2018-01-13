@@ -115,22 +115,37 @@ func sendJobs(jobs []Job, url string, ret chan SearchResult) {
 	for i, value := range jobs {
 		if value.City != "" {
 			location := strings.Split(value.City, ",")
+			//lg.Debugf("location:%v, len=%d", location, len(location))
+			//if len(location) == 2 {
+			//	lg.Debugf("location1: %s", location[0])
+			//	lg.Debugf("location2: %s", location[1])
+			//}
 
-			jobs[i].City = strings.Trim(location[0], " ")
-			location[1] = strings.Trim(location[1], " ")
-
-			if len(location[1]) == 2 {
-				if location[1] == "CA" {
-					country = "Canada"
-				} else {
-					country = "USA"
-				}
+			//Attention
+			//sometimes location is just `No office location` and len(location) = 1
+			if len(location) == 1 {
+				country = location[0]
 			} else {
-				country = location[1]
-			}
-			//
-			if country == "Deutschland" {
-				country = "Germany"
+				jobs[i].City = strings.Trim(location[0], " ")
+
+				location[1] = strings.Trim(location[1], " ")
+
+				//in case of 2 letters
+				if len(location[1]) == 2 && location[1] != "UK" {
+					if location[1] == "CA" {
+						country = "Canada"
+					} else {
+						country = "USA"
+					}
+				} else {
+					country = location[1]
+				}
+				// rename country
+				if country == "Deutschland" {
+					country = "Germany"
+				} else if country == "Czechia" {
+					country = "Czech"
+				}
 			}
 		}
 		titles := SearchResult{Country: country, BaseUrl: url, Jobs: []Job{value}}

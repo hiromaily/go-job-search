@@ -33,7 +33,7 @@ var (
 	cookieVal string = ""
 )
 
-func init(){
+func init() {
 	//get cookie from chrome
 	getLinkedinCookie()
 }
