@@ -21,7 +21,6 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 
 	// http request
 	url := fmt.Sprintf(ind.Url+ind.Param, ind.keyword, start)
-	//lg.Debug("[URL]", url)
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		lg.Errorf("[scrape() for indeed] %s", url)
@@ -81,7 +80,7 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 		}
 
 		if title, ok := s.Attr("title"); ok {
-			level := analyzeTitle(title)
+			level := analyzeTitle(title, ind.keyword)
 			if level != 0 {
 				jobs = append(jobs, Job{Title: title, Link: link, Company: company, MachingLevel: level})
 			}

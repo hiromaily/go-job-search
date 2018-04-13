@@ -75,13 +75,27 @@ func callScraper(s Scraper, resCh chan SearchResult, wg *sync.WaitGroup) {
 	wg.Done()
 }
 
-func analyzeTitle(title string) uint8 {
+func analyzeTitle(title, keyword string) uint8 {
 	//lg.Debug(title)
-	if strings.Index(title, "Golang") != -1 ||
-		strings.Index(title, "Go ") != -1 ||
-		strings.Index(title, "Go,") != -1 ||
-		strings.Index(title, "Go)") != -1 {
-		return 1
+	switch keyword {
+	case "golang":
+		if strings.Index(title, "Golang") != -1 ||
+			strings.Index(title, "Go ") != -1 ||
+			strings.Index(title, "Go,") != -1 ||
+			strings.Index(title, "Go)") != -1 {
+			return 1
+		}
+	case "blockchain":
+		if strings.Index(title, "Blockchain") != -1 ||
+			strings.Index(title, "Block chain") != -1 ||
+			strings.Index(title, "Block Chain") != -1 ||
+			strings.Index(title, "Cryptography") != -1 {
+			return 1
+		}
+	default:
+		if strings.Index(title, keyword) != -1 {
+			return 1
+		}
 	}
 
 	return 0

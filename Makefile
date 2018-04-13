@@ -4,14 +4,17 @@ build:
 exec:
 	gojob
 
-exec1:
+exec_indeed:
 	gojob -target 1
 
-exec2:
+exec_stackoverflow:
 	gojob -target 2
 
-exec3:
+exec_linkedin:
 	gojob -target 3
+
+exec_blockchain:
+	gojob -key blockchain
 
 run: build exec
 	#go run -race ./cmd/main.go

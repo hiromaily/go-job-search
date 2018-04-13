@@ -139,7 +139,7 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 	for _, job := range result.jobs {
 		//title
 		if job["title"] != "" {
-			level := analyzeTitle(job["title"])
+			level := analyzeTitle(job["title"], lkd.keyword)
 			if level != 0 {
 				jobs = append(jobs, Job{Title: job["title"], Link: job["link"], Company: job["company"], City: job["location"], MachingLevel: level})
 			}

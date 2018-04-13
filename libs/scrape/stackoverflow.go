@@ -90,7 +90,7 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 
 		if title, ok := s.Attr("title"); ok {
 			//lg.Debug("title:", title)
-			level := analyzeTitle(title)
+			level := analyzeTitle(title, sof.keyword)
 			if level != 0 {
 				jobs = append(jobs, Job{Title: title, Link: link, Company: company, City: location, MachingLevel: level})
 			}

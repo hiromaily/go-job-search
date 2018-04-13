@@ -36,11 +36,12 @@ func init() {
 
 func main() {
 	//scraping
-	if *keyword != "" {
-		conf.GetConf().Keywords[0].Search = *keyword
-	}
-
 	c := conf.GetConf()
+
+	if *keyword != "" {
+		c.Keywords[0].Search = *keyword
+		//conf.GetConf().Keywords[0].Search = *keyword
+	}
 
 	switch *target {
 	case 0:
