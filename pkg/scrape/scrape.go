@@ -120,6 +120,21 @@ func getHTMLDocs(url string) (*goquery.Document, error) {
 	return goquery.NewDocumentFromReader(res.Body)
 }
 
+func getHTMLDocsWithCookie(url, cookie string) (*goquery.Document, error) {
+
+	// http request
+	resp, err := sendRequest(url, linkedinCookie)
+	if err != nil {
+		return nil, err
+	}
+
+	//debug
+	//resbody, err := ioutil.ReadAll(resp.Body)
+	//lg.Debug(string(resbody))
+
+	return goquery.NewDocumentFromReader(resp.Body)
+}
+
 func sendRequest(url, cookies string) (*http.Response, error) {
 	req, err := http.NewRequest(
 		"GET",

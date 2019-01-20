@@ -2,6 +2,7 @@ package scrape
 
 import (
 	"fmt"
+	"github.com/bookerzzz/grok"
 	"strconv"
 	"strings"
 	"sync"
@@ -9,11 +10,33 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	conf "github.com/hiromaily/go-job-search/pkg/config"
 	lg "github.com/hiromaily/golibs/log"
+	ck "github.com/hiromaily/golibs/web/cookie"
 )
 
 type stackoverflow struct {
 	conf.PageConfig
 	keyword string
+}
+
+var (
+	stackoverflowCookie string
+)
+
+func init() {
+	getStackOverFlowCookie()
+}
+
+func getStackOverFlowCookie() {
+	var (
+		url = "stackoverflow.com"
+	)
+
+	if stackoverflowCookie == "" {
+		cookies := ck.GetAllValue(url)
+		for key, value := range cookies {
+			stackoverflowCookie = stackoverflowCookie + fmt.Sprintf("%s=\"%s\"; ", key, value)
+		}
+	}
 }
 
 // notify implements a method with a pointer receiver.
@@ -25,8 +48,10 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 	if start != 0 {
 		url = fmt.Sprintf("%s?pg=%d", url, start)
 	}
-	//lg.Debug("[URL]", url)
-	doc, err := getHTMLDocs(url)
+
+	// get body
+	//doc, err := getHTMLDocs(url)
+	doc, err := getHTMLDocsWithCookie(url, stackoverflowCookie)
 	if err != nil {
 		lg.Errorf("[scrape() for stackoverflow]")
 		if wg != nil {
@@ -66,47 +91,37 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 	jobs := []Job{}
 
 	//analyze title
-	//doc.Find("h2.g-col10 a.job-link").Each(func(_ int, s *goquery.Selection) {
 	doc.Find(".-job-summary").Each(func(_ int, s *goquery.Selection) {
-		//lg.Debug(123)
 
 		//title object
-		titleDoc := s.Find(".-title span").First()
-		lg.Debug(titleDoc)
+		titleDoc := s.Find(".-title h2.job-details__spaced a").First()
+
+		//title
+		title := titleDoc.Text()
+		//lg.Debug(title)
 
 		//link
-		link, _ := titleDoc.Attr("data-href")
-		lg.Debug(link)
-
-		//link
-		//link, _ := s.Attr("href")
+		link, _ := titleDoc.Attr("href")
+		//lg.Debug(link)
 
 		//company
-		//var company string
-		//companyDoc := s.Parent().Parent().Next().Find("div.-name").First()
-		//tmpcom := strings.Trim(companyDoc.Text(), " \n")
-		//if tmpcom != "" {
-		//	company = tmpcom
-		//}
+		companyDoc := s.Find(".-company span")
+		company := companyDoc.First().Text()
+		company = strings.Trim(company, " \n")
+		//lg.Debug(company)
 
 		//location
-		//var location string
-		//locationDoc := s.Parent().Parent().Next().Find("div.-location").First()
-		//tmploc := strings.Trim(locationDoc.Text(), " \n")
-		//tmploc = strings.Trim(tmploc, " -")
-		//tmploc = strings.Trim(tmploc, " \n")
-		//if tmploc != "" {
-		//	location = tmploc
-		//	//lg.Debug("location:", location)
-		//}
-		//
-		//if title, ok := s.Attr("title"); ok {
-		//	//lg.Debug("title:", title)
-		//	level := analyzeTitle(title, sof.keyword)
-		//	if level != 0 {
-		//		jobs = append(jobs, Job{Title: title, Link: link, Company: company, City: location, MachingLevel: level})
-		//	}
-		//}
+		location := companyDoc.First().Next().Text()
+		if len(strings.Split(location, "-")) == 2 {
+			location = strings.Split(location, "-")[1]
+		}
+		location = strings.Trim(location, " \n")
+		//lg.Debug(location)
+
+		level := analyzeTitle(title, sof.keyword)
+		if level != 0 {
+			jobs = append(jobs, Job{Title: title, Link: link, Company: company, City: location, MachingLevel: level})
+		}
 	})
 
 	//deliver by country
@@ -123,15 +138,16 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 }
 
 func sendJobs(jobs []Job, url string, ret chan SearchResult) {
+	grok.Value(jobs)
+
+	//format country name
 	country := "World"
-	for i, value := range jobs {
-		if value.City != "" {
-			location := strings.Split(value.City, ",")
-			//lg.Debugf("location:%v, len=%d", location, len(location))
-			//if len(location) == 2 {
-			//	lg.Debugf("location1: %s", location[0])
-			//	lg.Debugf("location2: %s", location[1])
-			//}
+	for i, job := range jobs {
+		country = "World"
+
+		if job.City != "" && strings.Index(job.City, "No office location") == -1 {
+
+			location := strings.Split(job.City, ",")
 
 			//Attention
 			//sometimes location is just `No office location` and len(location) = 1
@@ -160,7 +176,9 @@ func sendJobs(jobs []Job, url string, ret chan SearchResult) {
 				}
 			}
 		}
-		titles := SearchResult{Country: country, BaseUrl: url, Jobs: []Job{value}}
+
+		//send
+		titles := SearchResult{Country: country, BaseUrl: url, Jobs: []Job{job}}
 		ret <- titles
 	}
 }

@@ -50,21 +50,6 @@ func getLinkedInCookie() {
 	}
 }
 
-func (lkd *linkedin) getBody(url string) (*goquery.Document, error) {
-
-	// http request
-	resp, err := sendRequest(url, linkedinCookie)
-	if err != nil {
-		return nil, err
-	}
-
-	//debug
-	//resbody, err := ioutil.ReadAll(resp.Body)
-	//lg.Debug(string(resbody))
-
-	return goquery.NewDocumentFromReader(resp.Body)
-}
-
 // notify implements a method with a pointer receiver.
 func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) {
 	var waitGroup sync.WaitGroup
@@ -76,7 +61,7 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 	}
 
 	// get body
-	doc, err := lkd.getBody(url)
+	doc, err := getHTMLDocsWithCookie(url, linkedinCookie)
 	if err != nil {
 		lg.Errorf("[scrape() for linkedin] %v", err)
 		if wg != nil {
