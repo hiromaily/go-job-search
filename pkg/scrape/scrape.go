@@ -123,7 +123,7 @@ func getHTMLDocs(url string) (*goquery.Document, error) {
 func getHTMLDocsWithCookie(url, cookie string) (*goquery.Document, error) {
 
 	// http request
-	resp, err := sendRequest(url, linkedinCookie)
+	resp, err := sendRequest(url, cookie)
 	if err != nil {
 		return nil, err
 	}
