@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	conf "github.com/hiromaily/go-job-search/libs/config"
-	"github.com/hiromaily/go-job-search/libs/enum"
-	sc "github.com/hiromaily/go-job-search/libs/scrape"
+	conf "github.com/hiromaily/go-job-search/pkg/config"
+	"github.com/hiromaily/go-job-search/pkg/enum"
+	sc "github.com/hiromaily/go-job-search/pkg/scrape"
 	"github.com/hiromaily/golibs/color"
 	lg "github.com/hiromaily/golibs/log"
 	tm "github.com/hiromaily/golibs/time"
@@ -23,8 +23,7 @@ func init() {
 	flag.Parse()
 
 	//log
-	lg.InitializeLog(lg.DebugStatus, lg.LogOff, 99,
-		"[JOB]", "/var/log/go/go-job-search.log")
+	lg.InitializeLog(lg.DebugStatus, lg.DateTimeShortFile, "", "", "hiromaily")
 
 	//load TOML
 	conf.New(*tomlPath, false)

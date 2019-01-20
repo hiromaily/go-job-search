@@ -3,7 +3,7 @@ package scrape
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	conf "github.com/hiromaily/go-job-search/libs/config"
+	conf "github.com/hiromaily/go-job-search/pkg/config"
 	lg "github.com/hiromaily/golibs/log"
 	"strconv"
 	"strings"
@@ -47,10 +47,11 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 			}
 		}
 		//lg.Debug("[searchCount]", searchCount)
+		//[searchCount][1 201]
 
 		// call left pages.
-		if len(searchCount) == 3 {
-			for i := 10; i < searchCount[2]; i += 10 {
+		if len(searchCount) == 2 {
+			for i := 10; i < searchCount[1]; i += 10 {
 				waitGroup.Add(1)
 				go ind.scrape(i, ret, &waitGroup)
 			}

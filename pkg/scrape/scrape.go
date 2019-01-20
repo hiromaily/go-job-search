@@ -1,7 +1,7 @@
 package scrape
 
 import (
-	conf "github.com/hiromaily/go-job-search/libs/config"
+	conf "github.com/hiromaily/go-job-search/pkg/config"
 	ur "net/url"
 	"strings"
 	"sync"

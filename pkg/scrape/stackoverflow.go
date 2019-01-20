@@ -3,7 +3,7 @@ package scrape
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	conf "github.com/hiromaily/go-job-search/libs/config"
+	conf "github.com/hiromaily/go-job-search/pkg/config"
 	lg "github.com/hiromaily/golibs/log"
 	"strconv"
 	"strings"

@@ -7,43 +7,36 @@ search="golang"
 [page]
 
 [[page.indeed]]
-#url = "https://www.indeed.nl/golang-vacatures"
 url = "https://www.indeed.nl"
-param = "/vacatures?q=%s&start=%d"
+param = "/jobs?q=%s&start=%d"
 country = "nl"
 
 [[page.indeed]]
-#url = "https://de.indeed.com/golang-Jobs"
 url = "https://de.indeed.com"
 param = "/Jobs?q=%s&start=%d"
 country = "de"
 
 [[page.indeed]]
-#url = "https://www.indeed.es/Ofertas-de-golang"
 url = "https://www.indeed.es"
-param = "/ofertas?q=%s&start=%d"
+param = "/jobs?q=%s&start=%d"
 country = "es"
 
 [[page.indeed]]
-#url = "https://www.indeed.ch/golang-Jobs"
 url = "https://www.indeed.ch"
-param = "/Stellen?q=%s&start=%d"
+param = "/jobs?q=%s&start=%d"
 country = "ch"
 
 [[page.indeed]]
-#url = "https://www.indeed.fi/golang-jobs"
 url = "https://www.indeed.fi"
 param = "/jobs?q=%s&start=%d"
 country = "fi"
 
 [[page.indeed]]
-#url = "https://se.indeed.com/golang-jobb"
 url = "https://se.indeed.com"
-param = "/jobb?q=%s&start=%d"
+param = "/jobs?q=%s&start=%d"
 country = "se"
 
 [[page.indeed]]
-#url = "https://no.indeed.com/golang-jobs"
 url = "https://no.indeed.com"
 param = "/jobs?q=%s&start=%d"
 country = "no"
@@ -54,9 +47,8 @@ param = "/jobs?q=%s&start=%d"
 country = "dk"
 
 [[page.indeed]]
-#url = "https://www.indeed.fr/Emplois-golang"
 url = "https://www.indeed.fr"
-param = "/emplois?q=%s&start=%d"
+param = "/jobs?q=%s&start=%d"
 country = "fr"
 
 [[page.indeed]]
