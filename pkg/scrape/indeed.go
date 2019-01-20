@@ -2,12 +2,13 @@ package scrape
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	conf "github.com/hiromaily/go-job-search/pkg/config"
-	lg "github.com/hiromaily/golibs/log"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/PuerkitoBio/goquery"
+	conf "github.com/hiromaily/go-job-search/pkg/config"
+	lg "github.com/hiromaily/golibs/log"
 )
 
 type indeed struct {
@@ -21,7 +22,7 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 
 	// http request
 	url := fmt.Sprintf(ind.Url+ind.Param, ind.keyword, start)
-	doc, err := goquery.NewDocument(url)
+	doc, err := getHTMLDocs(url)
 	if err != nil {
 		lg.Errorf("[scrape() for indeed] %s", url)
 		if wg != nil {
@@ -73,11 +74,6 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 		//companyDoc := s.Parent().Next().Find("span").First()
 
 		//company
-		//tmpcom := strings.Trim(companyDoc.Text(), " \n")
-		//lg.Debug(tmpcom)
-		//if tmpcom != "" {
-		//	company = tmpcom
-		//}
 		company := getCompanyAndLocation(companyDoc.Text())
 
 		if title, ok := s.Attr("title"); ok {
@@ -108,13 +104,13 @@ func getCompanyAndLocation(target string) (ret string) {
 
 	for _, val := range tmp {
 		val = strings.Trim(val, " ")
-		if strings.Index(val, "reviews") != -1{
+		if strings.Index(val, "reviews") != -1 {
 			continue
 		}
 		if val != "" && ret == "" {
 			ret = val
 		} else if val != "" && ret != "" {
-			ret = fmt.Sprintf("%s, %s",ret, val)
+			ret = fmt.Sprintf("%s, %s", ret, val)
 		}
 	}
 	return

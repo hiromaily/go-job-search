@@ -5,7 +5,16 @@ exec:
 	gojob
 
 run:
-	go run ./cmd/ -target 1
+	go run ./cmd/ -target ${opt}
+
+run1: opt=1
+run1: run
+
+run2: opt=2
+run2: run
+
+run3: opt=3
+run3: run
 
 exec_indeed:
 	gojob -target 1

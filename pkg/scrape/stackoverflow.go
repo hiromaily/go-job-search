@@ -2,12 +2,13 @@ package scrape
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	conf "github.com/hiromaily/go-job-search/pkg/config"
-	lg "github.com/hiromaily/golibs/log"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/PuerkitoBio/goquery"
+	conf "github.com/hiromaily/go-job-search/pkg/config"
+	lg "github.com/hiromaily/golibs/log"
 )
 
 type stackoverflow struct {
@@ -25,7 +26,7 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 		url = fmt.Sprintf("%s?pg=%d", url, start)
 	}
 	//lg.Debug("[URL]", url)
-	doc, err := goquery.NewDocument(url)
+	doc, err := getHTMLDocs(url)
 	if err != nil {
 		lg.Errorf("[scrape() for stackoverflow]")
 		if wg != nil {
@@ -65,36 +66,47 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 	jobs := []Job{}
 
 	//analyze title
-	doc.Find("h2.g-col10 a.job-link").Each(func(_ int, s *goquery.Selection) {
+	//doc.Find("h2.g-col10 a.job-link").Each(func(_ int, s *goquery.Selection) {
+	doc.Find(".-job-summary").Each(func(_ int, s *goquery.Selection) {
+		//lg.Debug(123)
+
+		//title object
+		titleDoc := s.Find(".-title span").First()
+		lg.Debug(titleDoc)
+
 		//link
-		link, _ := s.Attr("href")
+		link, _ := titleDoc.Attr("data-href")
+		lg.Debug(link)
+
+		//link
+		//link, _ := s.Attr("href")
 
 		//company
-		var company string
-		companyDoc := s.Parent().Parent().Next().Find("div.-name").First()
-		tmpcom := strings.Trim(companyDoc.Text(), " \n")
-		if tmpcom != "" {
-			company = tmpcom
-		}
+		//var company string
+		//companyDoc := s.Parent().Parent().Next().Find("div.-name").First()
+		//tmpcom := strings.Trim(companyDoc.Text(), " \n")
+		//if tmpcom != "" {
+		//	company = tmpcom
+		//}
 
 		//location
-		var location string
-		locationDoc := s.Parent().Parent().Next().Find("div.-location").First()
-		tmploc := strings.Trim(locationDoc.Text(), " \n")
-		tmploc = strings.Trim(tmploc, " -")
-		tmploc = strings.Trim(tmploc, " \n")
-		if tmploc != "" {
-			location = tmploc
-			//lg.Debug("location:", location)
-		}
-
-		if title, ok := s.Attr("title"); ok {
-			//lg.Debug("title:", title)
-			level := analyzeTitle(title, sof.keyword)
-			if level != 0 {
-				jobs = append(jobs, Job{Title: title, Link: link, Company: company, City: location, MachingLevel: level})
-			}
-		}
+		//var location string
+		//locationDoc := s.Parent().Parent().Next().Find("div.-location").First()
+		//tmploc := strings.Trim(locationDoc.Text(), " \n")
+		//tmploc = strings.Trim(tmploc, " -")
+		//tmploc = strings.Trim(tmploc, " \n")
+		//if tmploc != "" {
+		//	location = tmploc
+		//	//lg.Debug("location:", location)
+		//}
+		//
+		//if title, ok := s.Attr("title"); ok {
+		//	//lg.Debug("title:", title)
+		//	level := analyzeTitle(title, sof.keyword)
+		//	if level != 0 {
+		//		jobs = append(jobs, Job{Title: title, Link: link, Company: company, City: location, MachingLevel: level})
+		//	}
+		//}
 	})
 
 	//deliver by country

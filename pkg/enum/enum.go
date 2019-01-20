@@ -1,6 +1,9 @@
 package enum
 
-var COUNTRY = map[string]string{
+// Country
+//type CountryCode string
+
+var CountryMaps = map[string]string{
 	"nl": "Netherlands",
 	"de": "German",
 	"fr": "France",
@@ -17,9 +20,23 @@ var COUNTRY = map[string]string{
 	"ca": "Canada",
 }
 
-var MODE = []string{
+// Site
+
+type Site string
+
+func (s Site) String() string {
+	return string(s)
+}
+
+const (
+	SiteIndeed        Site = "indeed"
+	SiteStackoverflow Site = "stackoverflow"
+	SiteLinkedin      Site = "linkedin"
+)
+
+var Sites = []Site{
 	"",
-	"indeed",
-	"stackoverflow",
-	"linkedin",
+	SiteIndeed,
+	SiteStackoverflow,
+	SiteLinkedin,
 }

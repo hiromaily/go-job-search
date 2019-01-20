@@ -3,14 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"sort"
+	"time"
+
 	conf "github.com/hiromaily/go-job-search/pkg/config"
 	"github.com/hiromaily/go-job-search/pkg/enum"
 	sc "github.com/hiromaily/go-job-search/pkg/scrape"
 	"github.com/hiromaily/golibs/color"
 	lg "github.com/hiromaily/golibs/log"
 	tm "github.com/hiromaily/golibs/time"
-	"sort"
-	"time"
 )
 
 var (
@@ -65,7 +66,7 @@ func main() {
 }
 
 func start(pages []conf.PageConfig, mode int) {
-	defer tm.Track(time.Now(), fmt.Sprintf("start():%s", enum.MODE[mode]))
+	defer tm.Track(time.Now(), fmt.Sprintf("start():%s", enum.Sites[mode]))
 
 	// scrape
 	results := sc.Scrape(pages, mode)
@@ -105,13 +106,13 @@ func start(pages []conf.PageConfig, mode int) {
 	}
 
 	// display
-	fmt.Println(color.Addf(color.Green, "======================= %s =======================\n", enum.MODE[mode]))
+	fmt.Println(color.Addf(color.Green, "======================= %s =======================\n", enum.Sites[mode]))
 	//fmt.Printf("================= %s =================\n", enum.MODE[mode])
 
 	var country string
 	for key, val := range jobs {
 		fmt.Println("----------------------------------------")
-		if val, ok := enum.COUNTRY[key]; ok {
+		if val, ok := enum.CountryMaps[key]; ok {
 			country = val
 		} else {
 			country = key

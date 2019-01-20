@@ -2,16 +2,15 @@ package scrape
 
 import (
 	"fmt"
+	"html"
+	"sync"
+
 	"github.com/PuerkitoBio/goquery"
 	jp "github.com/buger/jsonparser"
 	conf "github.com/hiromaily/go-job-search/pkg/config"
 	"github.com/hiromaily/go-job-search/pkg/enum"
 	lg "github.com/hiromaily/golibs/log"
 	ck "github.com/hiromaily/golibs/web/cookie"
-	"html"
-	"net/http"
-	"strings"
-	"sync"
 )
 
 //TODO:login is required to fetch data.
@@ -29,27 +28,41 @@ type linkedinResult struct {
 }
 
 var (
-	urlSuffix string = "%3A0"
-	cookieVal string = ""
+	urlSuffix      string = "%3A0"
+	linkedinCookie string
 )
 
 func init() {
-	//get cookie from chrome
-	getLinkedinCookie()
+	getLinkedInCookie()
 }
 
-func getLinkedinCookie() {
+func getLinkedInCookie() {
 	var (
 		//url = "www.linkedin.com"
 		url = "linkedin.com"
 	)
 
-	if cookieVal == "" {
+	if linkedinCookie == "" {
 		cookies := ck.GetAllValue(url)
 		for key, value := range cookies {
-			cookieVal = cookieVal + fmt.Sprintf("%s=\"%s\"; ", key, value)
+			linkedinCookie = linkedinCookie + fmt.Sprintf("%s=\"%s\"; ", key, value)
 		}
 	}
+}
+
+func (lkd *linkedin) getBody(url string) (*goquery.Document, error) {
+
+	// http request
+	resp, err := sendRequest(url, linkedinCookie)
+	if err != nil {
+		return nil, err
+	}
+
+	//debug
+	//resbody, err := ioutil.ReadAll(resp.Body)
+	//lg.Debug(string(resbody))
+
+	return goquery.NewDocumentFromReader(resp.Body)
 }
 
 // notify implements a method with a pointer receiver.
@@ -57,21 +70,13 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 	var waitGroup sync.WaitGroup
 
 	// create URL
-	url := fmt.Sprintf(lkd.Url+lkd.Param, lkd.keyword, encode(enum.COUNTRY[lkd.Country]), lkd.Country) + urlSuffix
+	url := fmt.Sprintf(lkd.Url+lkd.Param, lkd.keyword, encode(enum.CountryMaps[lkd.Country]), lkd.Country) + urlSuffix
 	if start != 0 {
 		url = fmt.Sprintf("%s&start=%d", url, start)
 	}
-	//https://www.linkedin.com/jobs/search/?keywords=golang&location=Netherlands&locationId=nl%3A0
-	//https://www.linkedin.com/jobs/search/?keywords=golang&location=Netherlands&locationId=nl%3A0&start=25
-	//lg.Debug("[URL]", url)
 
-	// http request
-	resp, err := sendRequest(url)
-	var doc *goquery.Document
-	if err == nil {
-		//doc, err := goquery.NewDocument(url)
-		doc, err = goquery.NewDocumentFromResponse(resp)
-	}
+	// get body
+	doc, err := lkd.getBody(url)
 	if err != nil {
 		lg.Errorf("[scrape() for linkedin] %v", err)
 		if wg != nil {
@@ -98,9 +103,6 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 		// unescape json data
 		code = html.UnescapeString(code)
 
-		//lg.Debugf("[HTML] url=%s\n%s", url, code)
-		//lg.Debug("------------------------")
-
 		data := analyzeJson([]byte(code))
 		if data != nil {
 			//lg.Debug("[analyzeJson]", data)
@@ -110,18 +112,9 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 			}
 		}
 	})
-	//if len(result.jobs) == 0{
-	//	if wg != nil {
-	//		wg.Done()
-	//	}
-	//	return
-	//}
 
 	// paging, call all existing pages by paging information
 	if start == 0 {
-		//paging
-		//{"total":71,"count":25,"start":0,"links":[]}}
-		//{"total":71,"count":25,"start":25,"links":[]}}
 
 		// call left pages.
 		if result.total > result.count {
@@ -157,78 +150,71 @@ func (lkd *linkedin) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup
 	}
 }
 
-func sendRequest(url string) (*http.Response, error) {
-	req, err := http.NewRequest(
-		"GET",
-		url,
-		nil,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set http header
-	setHeader(req)
-
-	//dump
-	//dumpHTTP(req)
-
-	// Send
-	client := &http.Client{}
-	return client.Do(req)
-}
-
-func setHeader(req *http.Request) {
-	//req.Header.Set("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.8,ja;q=0.6,nl;q=0.4,de;q=0.2,fr;q=0.2")
-	req.Header.Set("Upgrade-Insecure-Requests", "1")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36")
-	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
-	req.Header.Set("Cache-Control", "max-age=0")
-	req.Header.Set("Connection", "keep-alive")
-
-	//setLinkedinCookie(req)
-	req.Header.Set("Cookie", cookieVal)
-
-}
-
 func analyzeJson(data []byte) interface{} {
 	//job info
-	_, _, _, err := jp.Get(data, "metadata", "locationInfo")
+	_, _, _, err := jp.Get(data, "data", "metadata", "locationInfo")
 	if err == nil {
 		result := linkedinResult{}
 
 		//jobs := make([]map[string]string)
 		jobs := []map[string]string{}
 		jp.ArrayEach(data, func(value []byte, dataType jp.ValueType, offset int, err error) {
-			//link
-			link, err := jp.GetString(value, "hitInfo", "com.linkedin.voyager.search.SearchJobJserp", "jobPosting")
-			if err == nil {
-				tmp := strings.Split(link, ":")
-				link = tmp[len(tmp)-1]
-			}
-			//title, company, location
-			job, _, _, err := jp.Get(value, "hitInfo", "com.linkedin.voyager.search.SearchJobJserp", "jobPostingResolutionResult")
-			if err == nil {
-				formattedLocation, _ := jp.GetString(job, "formattedLocation")
-				title, _ := jp.GetString(job, "title")
-				company, _ := jp.GetString(job, "companyDetails", "com.linkedin.voyager.jobs.JobPostingCompany", "companyResolutionResult", "name")
-				jobs = append(jobs, map[string]string{
-					"location": formattedLocation,
-					"title":    title,
-					"company":  company,
-					"link":     fmt.Sprintf("/jobs/view/%s/", link),
-				})
+
+			//check companyDetails
+			_, _, _, err = jp.Get(value, "companyDetails")
+			if err != nil {
+				return
 			}
 
-		}, "elements")
+			//job title
+			title, err := jp.GetString(value, "title")
+
+			//job link
+			link, err := jp.GetString(value, "applyMethod", "companyApplyUrl")
+
+			//job location
+			location, err := jp.GetString(value, "formattedLocation")
+
+			//TODO: how to get company name...
+			jobs = append(jobs, map[string]string{
+				"location": location,
+				"title":    title,
+				"company":  "",
+				"link":     link,
+			})
+
+			//link
+			//link, err := jp.GetString(value, "hitInfo", "com.linkedin.voyager.search.SearchJobJserp", "jobPosting")
+			//if err == nil {
+			//	tmp := strings.Split(link, ":")
+			//	link = tmp[len(tmp)-1]
+			//}
+			//title, company, location
+			//job, _, _, err := jp.Get(value, "hitInfo", "com.linkedin.voyager.search.SearchJobJserp", "jobPostingResolutionResult")
+			//if err == nil {
+			//	formattedLocation, _ := jp.GetString(job, "formattedLocation")
+			//	title, _ := jp.GetString(job, "title")
+			//	company, _ := jp.GetString(job, "companyDetails", "com.linkedin.voyager.jobs.JobPostingCompany", "companyResolutionResult", "name")
+			//	jobs = append(jobs, map[string]string{
+			//		"location": formattedLocation,
+			//		"title":    title,
+			//		"company":  company,
+			//		"link":     fmt.Sprintf("/jobs/view/%s/", link),
+			//	})
+			//}
+
+		}, "included")
 		result.jobs = jobs
+
 		//count
-		result.count, err = jp.GetInt(data, "paging", "count")
+		result.count, err = jp.GetInt(data, "data", "paging", "count")
 		if err == nil {
-			result.start, _ = jp.GetInt(data, "paging", "start")
-			result.total, _ = jp.GetInt(data, "paging", "total")
+			result.start, _ = jp.GetInt(data, "data", "paging", "start")
+			result.total, _ = jp.GetInt(data, "data", "paging", "total")
 		}
+		//lg.Debug(result.count)
+		//lg.Debug(result.start)
+		//lg.Debug(result.total)
 
 		return result
 	}
