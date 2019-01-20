@@ -67,18 +67,18 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 		//link
 		link, _ := s.Attr("href")
 
-		//company
-		var company string
-
 		//this emement may be changeble
 		companyDoc := s.Parent().Next()
 		//companyDoc := s.Parent().Next().Find("span")
 		//companyDoc := s.Parent().Next().Find("span").First()
 
-		tmpcom := strings.Trim(companyDoc.Text(), " \n")
-		if tmpcom != "" {
-			company = tmpcom
-		}
+		//company
+		//tmpcom := strings.Trim(companyDoc.Text(), " \n")
+		//lg.Debug(tmpcom)
+		//if tmpcom != "" {
+		//	company = tmpcom
+		//}
+		company := getCompanyAndLocation(companyDoc.Text())
 
 		if title, ok := s.Attr("title"); ok {
 			level := analyzeTitle(title, ind.keyword)
@@ -96,4 +96,26 @@ func (ind *indeed) scrape(start int, ret chan SearchResult, wg *sync.WaitGroup) 
 	} else {
 		wg.Done()
 	}
+}
+
+func getCompanyAndLocation(target string) (ret string) {
+	target = strings.Trim(target, " \n")
+	if target == "" {
+		return
+	}
+
+	tmp := strings.Split(target, "\n")
+
+	for _, val := range tmp {
+		val = strings.Trim(val, " ")
+		if strings.Index(val, "reviews") != -1{
+			continue
+		}
+		if val != "" && ret == "" {
+			ret = val
+		} else if val != "" && ret != "" {
+			ret = fmt.Sprintf("%s, %s",ret, val)
+		}
+	}
+	return
 }
