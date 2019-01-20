@@ -2,7 +2,6 @@ package scrape
 
 import (
 	"fmt"
-	"github.com/bookerzzz/grok"
 	"strconv"
 	"strings"
 	"sync"
@@ -48,6 +47,7 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 	if start != 0 {
 		url = fmt.Sprintf("%s?pg=%d", url, start)
 	}
+	//lg.Debug(url)
 
 	// get body
 	//doc, err := getHTMLDocs(url)
@@ -67,8 +67,8 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 	//paging
 	if start == 0 {
 		searchCount := []int{}
-		linkDoc := doc.Find("div.pagination a.job-link").First()
-		page, _ := linkDoc.Attr("title")
+		linkDoc := doc.Find("div.pagination a").First()
+		page, _ := linkDoc.Attr("title")  //page 1 of 12
 		tmp := strings.Split(page, " ")
 		for _, v := range tmp {
 			if i, ok := strconv.Atoi(v); ok == nil {
@@ -78,6 +78,7 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 
 		//page 1 of 3
 		//lg.Debug("[searchCount]", searchCount)
+		//[1 3]
 
 		// call left pages.
 		if len(searchCount) == 2 {
@@ -138,7 +139,7 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 }
 
 func sendJobs(jobs []Job, url string, ret chan SearchResult) {
-	grok.Value(jobs)
+	//grok.Value(jobs)
 
 	//format country name
 	country := "World"
