@@ -78,7 +78,9 @@ func start(pages []conf.PageConfig, mode int) {
 			jobs[result.Country] = []sc.Job{}
 		}
 		for _, job := range result.Jobs {
-			job.Link = result.BaseUrl + job.Link
+			if enum.Sites[mode] != enum.SiteLinkedin {
+				job.Link = result.BaseUrl + job.Link
+			}
 			jobs[result.Country] = append(jobs[result.Country], job)
 		}
 	}
