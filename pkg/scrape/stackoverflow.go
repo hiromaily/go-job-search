@@ -2,6 +2,7 @@ package scrape
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -22,7 +23,10 @@ var (
 )
 
 func init() {
-	getStackOverFlowCookie()
+	err := getStackOverFlowCookie()
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func getStackOverFlowCookie() error {

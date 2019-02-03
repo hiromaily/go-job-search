@@ -3,6 +3,7 @@ package scrape
 import (
 	"fmt"
 	"html"
+	"log"
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
@@ -33,7 +34,10 @@ var (
 )
 
 func init() {
-	getLinkedInCookie()
+	err := getLinkedInCookie()
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func getLinkedInCookie() error {
