@@ -25,17 +25,21 @@ func init() {
 	getStackOverFlowCookie()
 }
 
-func getStackOverFlowCookie() {
+func getStackOverFlowCookie() error {
 	var (
 		url = "stackoverflow.com"
 	)
 
 	if stackoverflowCookie == "" {
-		cookies := ck.GetAllValue(url)
+		cookies, err := ck.GetAllValue(url)
+		if err != nil {
+			return err
+		}
 		for key, value := range cookies {
 			stackoverflowCookie = stackoverflowCookie + fmt.Sprintf("%s=\"%s\"; ", key, value)
 		}
 	}
+	return nil
 }
 
 // notify implements a method with a pointer receiver.
@@ -68,7 +72,7 @@ func (sof *stackoverflow) scrape(start int, ret chan SearchResult, wg *sync.Wait
 	if start == 0 {
 		searchCount := []int{}
 		linkDoc := doc.Find("div.pagination a").First()
-		page, _ := linkDoc.Attr("title")  //page 1 of 12
+		page, _ := linkDoc.Attr("title") //page 1 of 12
 		tmp := strings.Split(page, " ")
 		for _, v := range tmp {
 			if i, ok := strconv.Atoi(v); ok == nil {

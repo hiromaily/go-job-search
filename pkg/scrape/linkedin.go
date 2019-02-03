@@ -36,18 +36,22 @@ func init() {
 	getLinkedInCookie()
 }
 
-func getLinkedInCookie() {
+func getLinkedInCookie() error {
 	var (
 		//url = "www.linkedin.com"
 		url = "linkedin.com"
 	)
 
 	if linkedinCookie == "" {
-		cookies := ck.GetAllValue(url)
+		cookies, err := ck.GetAllValue(url)
+		if err != nil {
+			return err
+		}
 		for key, value := range cookies {
 			linkedinCookie = linkedinCookie + fmt.Sprintf("%s=\"%s\"; ", key, value)
 		}
 	}
+	return nil
 }
 
 // notify implements a method with a pointer receiver.
